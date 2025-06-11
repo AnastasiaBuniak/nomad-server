@@ -15,18 +15,15 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: {
       validator: function(val) {
-        // return validator.isEmail(val);
         return /\S+@\S+\.\S+/.test(val); // Simple regex for email validation
       },
       message: 'Please provide a valid email!'
     }
   },
-  password: {
-    type: String,
-    required: [true, 'A user must have a password'],
-    minlength: [8, 'A password must have more than or equal to 8 characters']
+  picture: {
+    type: String
   },
-  slug: String,
+
   rules: [
     {
       type: mongoose.Schema.ObjectId,
