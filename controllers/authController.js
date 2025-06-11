@@ -1,5 +1,6 @@
 const { User } = require('../models');
 const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
 
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -24,34 +25,40 @@ exports.googleAuth = async (req, res) => {
     const payload = ticket.getPayload();
     const { name, email, picture } = payload;
 
-    const user = new User({
-      name,
-      email,
-      picture,
-      rules: [] // Assuming you have a default or empty rules array
-    })
-      .save()
-      .then(doc => {
-        console.log('User created successfully:', doc);
-        res.status(200).json({
-          status: 'success',
-          message: 'Authorization code exchanged successfully.',
-          data: {
-            user: {
-              id: doc._id,
-              name: doc.name,
-              email: doc.email,
-              picture: doc.picture,
-              rules: doc.rules
-            }
-          }
-        });
-      });
+    let user = await User.findOne({ email });
+    let isNewUser = false;
+
+    if (!user) {
+      user = await new User({ name, email, picture, rules: [] }).save();
+      isNewUser = true;
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    console.log('User created successfully:', doc);
+    res.status(200).json({
+      status: 'success',
+      token,
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          picture: user.picture,
+          rules: user.rules
+        },
+        isNewUser
+      }
+    });
   } catch (error) {
     console.error('Error exchanging auth code:', error);
     res.status(401).json({
       status: 'fail',
-      message: 'Failed to exchange authorization code for tokens.'
+      message: `Failed: ${error} `
     });
   }
 };
