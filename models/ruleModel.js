@@ -4,11 +4,9 @@ const ruleSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'A rule must have a name'],
-    unique: true,
     trim: true,
     maxlength: [40, 'A rule name must have less or equal then 40 characters'],
     minlength: [1, 'A rule name must have more than 1 character']
-    // validate: [validator.isAlpha, 'Tour name must only contain characters']
   },
   visits: [
     {
@@ -20,12 +18,21 @@ const ruleSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
   description: {
     type: String,
     trim: true,
     maxlength: [500, 'A rule description must have less than 500 characters']
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
