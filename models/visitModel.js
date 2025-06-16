@@ -19,13 +19,6 @@ const visitSchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'completed'],
     default: 'active'
   },
-  rules: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Rule',
-      required: true
-    }
-  ],
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
