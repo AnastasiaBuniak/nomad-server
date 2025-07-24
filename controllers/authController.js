@@ -3,6 +3,7 @@ const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 
 const { createEmptyRule } = require('../utils/createEmptyRuleAndVisit');
+const { rules } = require('eslint-config-prettier');
 
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -38,7 +39,13 @@ exports.googleAuth = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, name: user.name },
+      {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        rules: user.rules,
+        picture: picture
+      },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );

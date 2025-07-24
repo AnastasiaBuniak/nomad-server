@@ -5,8 +5,7 @@ const router = express.Router();
 
 router.route('/').post(ruleController.createRule);
 
-router.route('/:id').get(ruleController.getRuleById);
+router.route('/:id').get(ruleController.getRuleByUserId);
 // .patch(ruleController.updateRule)
 // .delete(ruleController.deleteRule)
-router.route('/:ruleId/visits').get(ruleController.getRuleVisits);
 module.exports = router;

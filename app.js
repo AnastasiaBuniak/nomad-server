@@ -36,8 +36,8 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
-app.use('/api/v1/rule', ruleRouter);
-app.use('/api/v1/visit', visitRouter);
+app.use('/api/v1/rule', authMiddleware, ruleRouter);
+app.use('/api/v1/visit', authMiddleware, visitRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/me', authMiddleware, (req, res) => {

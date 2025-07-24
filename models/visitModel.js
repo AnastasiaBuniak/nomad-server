@@ -2,11 +2,11 @@ const { rules } = require('eslint-config-prettier');
 const mongoose = require('mongoose');
 
 const visitSchema = new mongoose.Schema({
-  startDate: {
+  entry: {
     type: Date,
     default: Date.now
   },
-  endDate: {
+  exit: {
     type: Date,
     default: Date.now
   },
@@ -14,14 +14,9 @@ const visitSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'A user must have a duration']
   },
-  status: {
-    type: String,
-    enum: ['active', 'inactive', 'completed'],
-    default: 'active'
-  },
-  user: {
+  rule: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User',
+    ref: 'Rule',
     required: true
   }
 });

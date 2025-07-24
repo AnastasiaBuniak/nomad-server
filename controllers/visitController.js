@@ -1,22 +1,37 @@
-// const Tour = require('../models/visitModel');
-const Visit = require('../models/visitModel');
-const APIFeatures = require('../utils/apiFeatures');
+const { Rule } = require('../models/ruleModel');
+const { Visit } = require('../models/visitModel');
 
-exports.getVisitById = async (req, res) => {
+exports.createVisit = async (req, res) => {
   try {
-    const visit = await Visit.findById(req.params.id);
+    const { startDate, endDate, ruleId } = req.body;
+    const user = req.user;
+    const durationInDays =
+      Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    const rule = await Rule.findById(ruleId);
 
-    if (!visit) {
+    if (!rule) {
       return res.status(404).json({
         status: 'fail',
-        message: 'No visit found with that ID'
+        message: 'No rule found with that ID'
       });
     }
 
-    res.status(200).json({
+    const visit = new Visit({
+      entry: new Date(startDate),
+      exit: new Date(endDate),
+      duration: durationInDays,
+      rule: ruleId
+    });
+
+    rule.visits.push(visit._id);
+
+    await rule.save();
+    await visit.save();
+
+    res.status(201).json({
       status: 'success',
       data: {
-        visit
+        visit: visit
       }
     });
   } catch (err) {
@@ -27,15 +42,26 @@ exports.getVisitById = async (req, res) => {
   }
 };
 
-exports.createVisit = async (req, res) => {
+exports.deleteVisit = async (req, res) => {
   try {
-    const newVisit = await Visit.create(req.body);
+    const visit = await Visit.findById(req.params.id);
 
-    res.status(201).json({
+    if (!visit) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No visit found with that ID'
+      });
+    }
+
+    await visit.remove();
+
+    const rule = await Rule.findById(visit.rule);
+    rule.visits.pull(visit._id);
+    await rule.save();
+
+    res.status(204).json({
       status: 'success',
-      data: {
-        visit: newVisit
-      }
+      data: {}
     });
   } catch (err) {
     res.status(400).json({
