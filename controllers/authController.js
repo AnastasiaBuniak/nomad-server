@@ -2,8 +2,7 @@ const { User } = require('../models');
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 
-const { createEmptyRule } = require('../utils/createEmptyRuleAndVisit');
-const { rules } = require('eslint-config-prettier');
+const { createEmptyPolicy } = require('../utils/createEmptyPolicyAndVisit');
 
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -15,11 +14,9 @@ exports.googleAuth = async (req, res) => {
   const { code } = req.body;
 
   try {
-    // Exchange the authorization code for tokens
     const { tokens } = await oAuth2Client.getToken(code);
     const idToken = tokens.id_token;
 
-    // You can now get user info from the id_token as before
     const ticket = await oAuth2Client.verifyIdToken({
       idToken: idToken,
       audience: process.env.GOOGLE_CLIENT_ID
@@ -32,10 +29,9 @@ exports.googleAuth = async (req, res) => {
     let isNewUser = false;
 
     if (!user) {
-      user = await new User({ name, email, picture, rules: [] }).save();
+      user = await new User({ name, email, picture, policies: [] }).save();
       isNewUser = true;
-      console.log('New user created:', user);
-      createEmptyRule(user._id);
+      createEmptyPolicy(user._id);
     }
 
     const token = jwt.sign(
@@ -43,7 +39,7 @@ exports.googleAuth = async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        rules: user.rules,
+        policies: user.policies,
         picture: picture
       },
       process.env.JWT_SECRET,
@@ -54,7 +50,7 @@ exports.googleAuth = async (req, res) => {
       .cookie('token', token, {
         httpOnly: true,
         secure: true,
-        sameSite: 'Lax', // or 'Strict' for higher security
+        sameSite: 'Lax',
         maxAge: parseInt(process.env.JWT_EXPIRES_IN) * 24 * 60 * 60 * 1000 // Convert days to milliseconds
       })
       .status(200)
@@ -66,7 +62,7 @@ exports.googleAuth = async (req, res) => {
             name: user.name,
             email: user.email,
             picture: user.picture,
-            rules: user.rules
+            policies: user.policies
           },
           isNewUser
         }

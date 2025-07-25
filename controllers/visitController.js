@@ -1,18 +1,18 @@
-const { Rule } = require('../models/ruleModel');
+const { Policy } = require('../models/policyModel');
 const { Visit } = require('../models/visitModel');
 
 exports.createVisit = async (req, res) => {
   try {
-    const { startDate, endDate, ruleId } = req.body;
+    const { startDate, endDate, policyId } = req.body;
     const user = req.user;
     const durationInDays =
       Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    const rule = await Rule.findById(ruleId);
+    const policy = await Policy.findById(policyId);
 
-    if (!rule) {
+    if (!policy) {
       return res.status(404).json({
         status: 'fail',
-        message: 'No rule found with that ID'
+        message: 'No policy found with that ID'
       });
     }
 
@@ -20,12 +20,12 @@ exports.createVisit = async (req, res) => {
       entry: new Date(startDate),
       exit: new Date(endDate),
       duration: durationInDays,
-      rule: ruleId
+      policy: policyId
     });
 
-    rule.visits.push(visit._id);
+    policy.visits.push(visit._id);
 
-    await rule.save();
+    await policy.save();
     await visit.save();
 
     res.status(201).json({
@@ -55,9 +55,9 @@ exports.deleteVisit = async (req, res) => {
 
     await visit.remove();
 
-    const rule = await Rule.findById(visit.rule);
-    rule.visits.pull(visit._id);
-    await rule.save();
+    const policy = await Policy.findById(visit.policy);
+    policy.visits.pull(visit._id);
+    await policy.save();
 
     res.status(204).json({
       status: 'success',

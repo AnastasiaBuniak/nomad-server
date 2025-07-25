@@ -14,9 +14,9 @@ const visitSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'A user must have a duration']
   },
-  rule: {
+  policy: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Rule',
+    ref: 'Policy',
     required: true
   }
 });

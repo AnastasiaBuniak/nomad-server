@@ -1,34 +1,34 @@
-const { Rule, Visit } = require('../models');
+const { Policy, Visit } = require('../models');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.getRuleByUserId = async (req, res) => {
+exports.getPolicyByUserId = async (req, res) => {
   try {
-    const rules = await Rule.find({ user: req.params.id });
+    const policies = await Policy.find({ user: req.params.id });
 
-    if (rules.length === 0) {
+    if (policies.length === 0) {
       return res.status(404).json({
         status: 'fail',
-        message: 'No rule found with that ID'
+        message: 'No policies found with that ID'
       });
     }
 
-    const rulesWithVisits = await Promise.all(
-      rules.map(async rule => {
+    const policiesWithVisits = await Promise.all(
+      policies.map(async policy => {
         const populatedVisits = await Promise.all(
-          rule.visits.map(async visitId => {
+          policy.visits.map(async visitId => {
             return await Visit.findById(visitId);
           })
         );
-        const ruleObj = rule.toObject();
-        ruleObj.visits = populatedVisits;
-        return ruleObj;
+        const policyObj = policy.toObject();
+        policyObj.visits = populatedVisits;
+        return policyObj;
       })
     );
 
     res.status(200).json({
       status: 'success',
       data: {
-        rules: rulesWithVisits
+        policies: policiesWithVisits
       }
     });
   } catch (err) {
@@ -39,15 +39,14 @@ exports.getRuleByUserId = async (req, res) => {
   }
 };
 
-
-exports.createRule = async (req, res) => {
+exports.createPolicy = async (req, res) => {
   try {
-    const newRule = await Visit.create(req.body);
+    const newPolicy = await Visit.create(req.body);
 
     res.status(201).json({
       status: 'success',
       data: {
-        rule: newRule
+        policy: newPolicy
       }
     });
   } catch (err) {

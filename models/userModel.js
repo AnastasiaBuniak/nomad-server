@@ -24,10 +24,10 @@ const userSchema = new mongoose.Schema({
     type: String
   },
 
-  rules: [
+  policies: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: 'Rule',
+      ref: 'Policy',
       required: true
     }
   ]
