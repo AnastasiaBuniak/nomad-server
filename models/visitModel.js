@@ -10,11 +10,7 @@ const visitSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  duration: {
-    type: Number,
-    required: [true, 'A user must have a duration']
-  },
-  policy: {
+  policyId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Policy',
     required: true

@@ -4,15 +4,14 @@ exports.createEmptyPolicy = async userId => {
   const policy = new Policy({
     name: 'Country',
     description: 'This is a default country/area visits created for the user.',
-    user: userId,
+    userId: userId,
     visits: []
   });
 
   const visit = new Visit({
     entry: Date.now(),
     exit: Date.now(),
-    duration: 1,
-    policy: policy._id
+    policyId: policy._id
   });
 
   policy.visits.push(visit._id);
