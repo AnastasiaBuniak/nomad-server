@@ -5,8 +5,6 @@ exports.createVisit = async (req, res) => {
   try {
     const { startDate, endDate, policyId } = req.body;
     const user = req.user;
-    const durationInDays =
-      Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
     const policy = await Policy.findById(policyId);
 
     if (!policy) {
@@ -19,8 +17,7 @@ exports.createVisit = async (req, res) => {
     const visit = new Visit({
       entry: new Date(startDate),
       exit: new Date(endDate),
-      duration: durationInDays,
-      policy: policyId
+      policyId: policyId
     });
 
     policy.visits.push(visit._id);
@@ -55,7 +52,7 @@ exports.deleteVisit = async (req, res) => {
 
     await visit.remove();
 
-    const policy = await Policy.findById(visit.policy);
+    const policy = await Policy.findById(visit.policyId);
     policy.visits.pull(visit._id);
     await policy.save();
 

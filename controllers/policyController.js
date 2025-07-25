@@ -3,7 +3,7 @@ const APIFeatures = require('../utils/apiFeatures');
 
 exports.getPolicyByUserId = async (req, res) => {
   try {
-    const policies = await Policy.find({ user: req.params.id });
+    const policies = await Policy.find({ userId: req.params.id });
 
     if (policies.length === 0) {
       return res.status(404).json({
