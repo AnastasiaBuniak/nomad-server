@@ -6,6 +6,7 @@ const cors = require('cors');
 const visitRouter = require('./routes/visitRoutes');
 const userRouter = require('./routes/userRoutes');
 const policyRouter = require('./routes/policyRoutes');
+const policiesRouter = require('./routes/policiesRoutes');
 const authRouter = require('./routes/authRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 
@@ -36,12 +37,14 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
-app.use('/api/v1/policy', authMiddleware, policyRouter);
-app.use('/api/v1/visit', authMiddleware, visitRouter);
+
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/me', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
+app.use('/api/v1/policy', authMiddleware, policyRouter);
+app.use('/api/v1/visit', authMiddleware, visitRouter);
+app.use('/api/v1/policies', authMiddleware, policiesRouter);
 
 module.exports = app;
