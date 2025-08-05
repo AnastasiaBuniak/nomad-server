@@ -1,47 +1,29 @@
-const { Policy, Visit } = require('../models');
-const APIFeatures = require('../utils/apiFeatures');
-
-exports.getPolicyByUserId = async (req, res) => {
-  try {
-    const policies = await Policy.find({ userId: req.params.id });
-
-    if (policies.length === 0) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No policies found with that ID'
-      });
-    }
-
-    const policiesWithVisits = await Promise.all(
-      policies.map(async policy => {
-        const populatedVisits = await Promise.all(
-          policy.visits.map(async visitId => {
-            return await Visit.findById(visitId);
-          })
-        );
-        const policyObj = policy.toObject();
-        policyObj.visits = populatedVisits;
-        return policyObj;
-      })
-    );
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        policies: policiesWithVisits
-      }
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message
-    });
-  }
-};
+const { Policy, Visit, User } = require('../models');
 
 exports.createPolicy = async (req, res) => {
   try {
-    const newPolicy = await Visit.create(req.body);
+    const { name, description } = req.body;
+    const userId = req.user.id;
+    const newPolicy = new Policy({
+      name,
+      description,
+      userId
+    });
+    const visit = new Visit({
+      entry: Date.now(),
+      exit: Date.now(),
+      policyId: newPolicy._id
+    });
+
+    newPolicy.visits.push(visit._id);
+
+    await visit.save();
+    await newPolicy.save();
+
+    const user = await User.findById(userId);
+    user.policies.push(newPolicy._id);
+
+    await user.save();
 
     res.status(201).json({
       status: 'success',
@@ -50,6 +32,50 @@ exports.createPolicy = async (req, res) => {
       }
     });
   } catch (err) {
+    console.log('Error creating policy:', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
+
+exports.deletePolicy = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const userId = req.user.id;
+
+    const policyToDelete = await Policy.findById(id);
+
+    if (!policyToDelete) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No policy found with that ID'
+      });
+    }
+
+    if (policyToDelete.userId.toString() !== userId) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You do not have permission to delete this policy'
+      });
+    }
+
+    // Remove all visits associated with the policy
+    await Visit.deleteMany({ policyId: id });
+    // Remove the policy from the user's policies array
+    const user = await User.findById(userId);
+    user.policies.pull(id);
+    await user.save();
+    // Finally, remove the policy itself
+    await policyToDelete.remove();
+
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (err) {
+    console.log('Error deleting policy:', err);
     res.status(400).json({
       status: 'fail',
       message: err.message

@@ -4,7 +4,6 @@ const policyController = require('../controllers/policyController');
 const router = express.Router();
 
 router.route('/').post(policyController.createPolicy);
-
-router.route('/:id').get(policyController.getPolicyByUserId);
+router.route('/:id').delete(policyController.deletePolicy);
 
 module.exports = router;
