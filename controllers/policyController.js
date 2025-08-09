@@ -1,4 +1,5 @@
 const { Policy, Visit, User } = require('../models');
+const { validateString } = require('../utils/validators');
 
 exports.createPolicy = async (req, res) => {
   try {
@@ -33,6 +34,57 @@ exports.createPolicy = async (req, res) => {
     });
   } catch (err) {
     console.log('Error creating policy:', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
+
+exports.editPolicyNameAndDescription = async (req, res) => {
+  try {
+    const policyId = req.params.id;
+    const policy = await Policy.findById(policyId);
+    if (!policy) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No policy found with that ID'
+      });
+    }
+
+    if (policy.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You do not have permission to edit this policy'
+      });
+    }
+
+    if (!req.body.name) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Name and description are required'
+      });
+    }
+
+    if (validateString(req.body.name) !== true) {
+      return res.status(400).json({
+        status: 'fail',
+        message: validateString(req.body.name)
+      });
+    }
+
+    policy.name = req.body.name;
+    policy.description = req.body.description;
+    await policy.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        policy
+      }
+    });
+  } catch (err) {
+    console.log('Error editing policy:', err);
     res.status(400).json({
       status: 'fail',
       message: err.message
