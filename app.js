@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 
 // 3) ROUTES
 
-app.use('/api/v1/user', userRouter);
+app.use('/api/v1/user', authMiddleware, userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/me', authMiddleware, (req, res) => {
   res.json({ user: req.user });

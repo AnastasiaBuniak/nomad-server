@@ -2,8 +2,8 @@ const { Policy, User, Visit } = require('../models');
 
 exports.createEmptyPolicy = async userId => {
   const policy = new Policy({
-    name: 'Country',
-    description: 'This is a default country/area visits created for the user.',
+    name: 'Country / Zone',
+    description: 'A country / zone visits',
     userId: userId,
     visits: []
   });
