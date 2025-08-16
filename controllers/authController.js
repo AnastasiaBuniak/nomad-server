@@ -85,6 +85,8 @@ exports.protect = async (req, res, next) => {
       req.headers.authorization.startsWith('Bearer')
     ) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.token) {
+      token = req.cookies.token;
     }
 
     if (!token) {
@@ -95,8 +97,6 @@ exports.protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log('Decoded token:', decoded);
 
     const currentUser = await User.findById(decoded.id);
 
