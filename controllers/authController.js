@@ -2,7 +2,7 @@ const { User } = require('../models');
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 
-const { createEmptyPolicy } = require('../utils/createEmptyPolicyAndVisit');
+const { createNewPolicy } = require('../utils/createNewPolicyAndVisit');
 
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -31,7 +31,10 @@ exports.googleAuth = async (req, res) => {
     if (!user) {
       user = await new User({ name, email, picture, policies: [] }).save();
       isNewUser = true;
-      createEmptyPolicy(user._id);
+      createNewPolicy({
+        userId: user._id,
+        dateData: req.cookies.datesData
+      });
     }
 
     const token = jwt.sign(

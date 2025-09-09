@@ -5,6 +5,7 @@ exports.createPolicy = async (req, res) => {
   try {
     const { name, description } = req.body;
     const userId = req.user.id;
+
     const newPolicy = new Policy({
       name,
       description,
