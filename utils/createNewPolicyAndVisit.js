@@ -10,16 +10,12 @@ exports.createNewPolicy = async ({ userId, dateData }) => {
 
   if (dateData) {
     const dates = JSON.parse(dateData);
-    const visits = await Promise.all(
-      dates.map(async ({ entry, exit }) => {
-        const visit = new Visit({
-          entry,
-          exit,
-          policyId: policy._id
-        });
-        await visit.save();
-        return visit;
-      })
+    const visits = await Visit.insertMany(
+      dates.map(({ entry, exit }) => ({
+        entry,
+        exit,
+        policyId: policy._id
+      }))
     );
     policy.visits = visits.map(visit => visit._id);
   } else {
