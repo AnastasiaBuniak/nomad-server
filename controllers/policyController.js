@@ -42,6 +42,48 @@ exports.createPolicy = async (req, res) => {
   }
 };
 
+exports.getPolicy = async (req, res) => {
+  try {
+    const policyId = req.params.id;
+
+    if (!policyId) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Policy ID is required'
+      });
+    }
+
+    const policy = await Policy.findById(policyId).populate('visits');
+
+    if (!policy) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No policy found with that ID'
+      });
+    }
+
+    if (policy.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You do not have permission to view this policy'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        policy
+      }
+    });
+  } catch (err) {
+    console.log('Error fetching policy:', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
+
 exports.editPolicyNameAndDescription = async (req, res) => {
   try {
     const policyId = req.params.id;
