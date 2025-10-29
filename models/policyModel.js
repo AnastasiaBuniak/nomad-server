@@ -36,12 +36,12 @@ const policySchema = new mongoose.Schema({
   ruleWindow: {
     type: Number,
     required: [true, 'A policy must have a window'],
-    default: 90
+    default: 180
   },
   allowedRuleWindow: {
     type: Number,
     required: [true, 'A policy must have an allowed window'],
-    default: 180
+    default: 90
   }
 });
 
