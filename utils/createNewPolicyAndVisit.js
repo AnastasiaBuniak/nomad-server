@@ -2,8 +2,8 @@ const { Policy, User, Visit } = require('../models');
 
 exports.createNewPolicy = async ({ userId, dateData }) => {
   const policy = new Policy({
-    name: 'Country / Zone',
-    description: 'A country / zone visits',
+    name: 'Country or Zone',
+    description: 'A country or zone visits',
     userId: userId,
     visits: []
   });

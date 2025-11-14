@@ -163,7 +163,7 @@ exports.deletePolicy = async (req, res) => {
     user.policies.pull(id);
     await user.save();
     // Finally, remove the policy itself
-    await policyToDelete.remove();
+    await Policy.deleteOne({ _id: id });
 
     res.status(204).json({
       status: 'success',
